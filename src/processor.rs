@@ -55,7 +55,7 @@ impl InstructionProcessor {
 
         let system_program = next_account_info(account_info_iter)?;
 
-        let rent = Rent::get().unwrap();
+        let rent = Rent::get()?;
 
         let nft_mint_account_info = MintAccount::unpack_from_slice(&nft_mint_account.data.borrow())?;
 
@@ -137,23 +137,23 @@ impl InstructionProcessor {
                     )?;
                 }
 
-                let account_infos = &[nft_profile_account.clone(), system_program.clone()];
+                let account_infos = [nft_profile_account.clone(), system_program.clone()];
         
                 invoke_signed(
                     &system_instruction::allocate(nft_profile_account.key, NFTProfile::LEN as u64),
-                    account_infos,
+                    &account_infos,
                     &[nft_profile_pda_signer_seeds],
                 )?;
         
                 invoke_signed(
                     &system_instruction::assign(nft_profile_account.key, program_id),
-                    account_infos,
+                    &account_infos,
                     &[nft_profile_pda_signer_seeds],
                 )?;
 
                 nft_profile_account_after = account_infos[0].clone();
             } else {
-                let account_infos = &[
+                let account_infos = [
                     signer_account.clone(),
                     nft_profile_account.clone(),
                     system_program.clone(),
@@ -167,7 +167,7 @@ impl InstructionProcessor {
                         NFTProfile::LEN as u64,
                         program_id,
                     ),
-                    account_infos,
+                    &account_infos,
                     &[nft_profile_pda_signer_seeds],
                 )?;
 
