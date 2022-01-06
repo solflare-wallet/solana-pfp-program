@@ -1,0 +1,19 @@
+[package]
+name = "solana-pfp-program"
+version = "0.1.0"
+edition = "2021"
+license = "WTFPL"
+publish = false
+
+[features]
+no-entrypoint = []
+
+[dependencies]
+solana-program = "1.9.3"
+thiserror = "1.0.30"
+spl-token = { version = "3.2.0", features = ["no-entrypoint"] }
+arrayref = "0.3.6"
+spl-token-metadata = { version = "0.0.1", features = ["no-entrypoint"] }
+
+[lib]
+crate-type = ["cdylib", "lib"]
