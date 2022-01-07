@@ -10,7 +10,10 @@ use solana_program::{
     sysvar::{ rent::Rent, Sysvar, clock::Clock },
 
     msg,
-    system_instruction,
+
+    system_instruction::{ SystemInstruction },
+    instruction::{ AccountMeta, Instruction },
+    system_program,
 };
 
 use std::convert::TryInto;
@@ -128,7 +131,14 @@ impl InstructionProcessor {
         
                 if required_lamports > 0 {
                     invoke(
-                        &system_instruction::transfer(signer_account.key, nft_profile_account.key, required_lamports),
+                        &Instruction::new_with_bincode(
+                            system_program::id(),
+                            &SystemInstruction::Transfer { lamports: required_lamports },
+                            vec![
+                                AccountMeta::new(*signer_account.key, true),
+                                AccountMeta::new(*nft_profile_account.key, false),
+                            ],
+                        ),
                         &[
                             signer_account.clone(),
                             nft_profile_account.clone(),
@@ -140,13 +150,21 @@ impl InstructionProcessor {
                 let account_infos = [nft_profile_account.clone(), system_program.clone()];
         
                 invoke_signed(
-                    &system_instruction::allocate(nft_profile_account.key, NFTProfile::LEN as u64),
+                    &Instruction::new_with_bincode(
+                        system_program::id(),
+                        &SystemInstruction::Allocate { space: NFTProfile::LEN as u64 },
+                        vec![AccountMeta::new(*nft_profile_account.key, true)],
+                    ),
                     &account_infos,
                     &[nft_profile_pda_signer_seeds],
                 )?;
         
                 invoke_signed(
-                    &system_instruction::assign(nft_profile_account.key, program_id),
+                    &Instruction::new_with_bincode(
+                        system_program::id(),
+                        &SystemInstruction::Assign { owner: *program_id },
+                        vec![AccountMeta::new(*nft_profile_account.key, true)],
+                    ),
                     &account_infos,
                     &[nft_profile_pda_signer_seeds],
                 )?;
@@ -160,12 +178,17 @@ impl InstructionProcessor {
                 ];
 
                 invoke_signed(
-                    &system_instruction::create_account(
-                        signer_account.key,
-                        nft_profile_account.key,
-                        rent.minimum_balance(NFTProfile::LEN).max(1),
-                        NFTProfile::LEN as u64,
-                        program_id,
+                    &Instruction::new_with_bincode(
+                        system_program::id(),
+                        &SystemInstruction::CreateAccount {
+                            lamports: rent.minimum_balance(NFTProfile::LEN).max(1),
+                            space: NFTProfile::LEN as u64,
+                            owner: *program_id,
+                        },
+                        vec![
+                            AccountMeta::new(*signer_account.key, true),
+                            AccountMeta::new(*nft_profile_account.key, true),
+                        ],
                     ),
                     &account_infos,
                     &[nft_profile_pda_signer_seeds],
