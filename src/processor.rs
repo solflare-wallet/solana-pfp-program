@@ -103,6 +103,12 @@ impl InstructionProcessor {
             return Err(NFTError::InvalidMetadata.into())
         }
 
+        if spl_token_metadata::state::Metadata::from_account_info(nft_metadata_account).is_err() {
+            msg!("Can't deserialize NFT metadata account.");
+        
+            return Err(NFTError::InvalidMetadata.into())
+        }
+
         let (nft_profile_pda, nft_profile_pda_bump_seed) = Pubkey::find_program_address(&[
             PREFIX.as_bytes(),
             &signer_account.key.to_bytes(),
