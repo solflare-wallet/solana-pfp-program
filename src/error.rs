@@ -29,11 +29,11 @@ pub enum NFTError {
     InsufficientTokenBalance,
 
     /// 6 (0x6) Invalid mint
-    #[error("Insufficient mint")]
+    #[error("Invalid mint")]
     InvalidMint,
 
     /// 7 (0x7) Invalid metadata
-    #[error("Insufficient metadata")]
+    #[error("Invalid metadata")]
     InvalidMetadata,
 }
 
