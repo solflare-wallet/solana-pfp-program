@@ -60,12 +60,10 @@ impl InstructionProcessor {
 
         let rent = Rent::get()?;
 
-        let nft_mint_account_info = MintAccount::unpack_from_slice(&nft_mint_account.data.borrow())?;
+        if MintAccount::unpack_from_slice(&nft_mint_account.data.borrow()).is_err() {
+            msg!("Invalid NFT mint account.");
 
-        if nft_mint_account_info.supply != 1u64 {
-            msg!("Invalid NFT mint supply.");
-
-            return Err(NFTError::InvalidMintSupply.into())
+            return Err(NFTError::InvalidMint.into())
         }
 
         let nft_token_account_info = TokenAccount::unpack_from_slice(&nft_token_account.data.borrow())?;
