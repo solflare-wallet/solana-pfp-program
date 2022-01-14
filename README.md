@@ -6,6 +6,11 @@ This repository contains the Rust implementation of the Solana PFP protocol.
 
 The Solana PFP protocol allows Solana users to set a single Metaplex-standard NFT as a universal PFP for the Solana blockchain.
 
+## Deployments
+Program ID: **6UQLqKYWqErHqdsX6WtANQsMmvfKtWNuSSRj6ybg5in3**
+
+Program ID is the same on both **mainnet** and **devnet** deployments.
+
 ## Instructions
 
 ### SetProfileNFT
