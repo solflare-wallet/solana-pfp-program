@@ -20,6 +20,10 @@ use std::convert::TryInto;
 
 use spl_token::state::{ Account as TokenAccount, Mint as MintAccount };
 
+use mpl_token_metadata::{
+    accounts::Metadata,
+};
+
 use crate::{
     error::NFTError, state::NFTProfile, params::{ PREFIX, METADATA_PREFIX }
 };
@@ -89,10 +93,10 @@ impl InstructionProcessor {
         let (nft_metadata_account_pda, _) = Pubkey::find_program_address(
             &[
                 METADATA_PREFIX.as_bytes(),
-                spl_token_metadata::id().as_ref(),
+                mpl_token_metadata::ID.as_ref(),
                 nft_mint_account.key.as_ref(),
             ],
-            &spl_token_metadata::id(),
+            &mpl_token_metadata::ID,
         );
 
         if nft_metadata_account_pda != * nft_metadata_account.key {
@@ -101,7 +105,13 @@ impl InstructionProcessor {
             return Err(NFTError::InvalidMetadata.into())
         }
 
-        if spl_token_metadata::state::Metadata::from_account_info(nft_metadata_account).is_err() {
+        if nft_metadata_account.data.borrow().len() == 0 {
+            msg!("NFT metadata account is empty.");
+        
+            return Err(NFTError::InvalidMetadata.into())
+        }
+
+        if Metadata::from_bytes(&nft_metadata_account.data.borrow()).is_err() {
             msg!("Can't deserialize NFT metadata account.");
         
             return Err(NFTError::InvalidMetadata.into())
